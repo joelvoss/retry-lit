@@ -1,0 +1,47 @@
+{
+  "name": "retry-lit",
+  "description": "Helper method to retry a promise-returning or async function.",
+  "version": "0.0.1",
+  "author": "Joel Voß <mail@joelvoss.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/joelvoss/retry-lit",
+  "bugs": {
+    "url": "https://github.com/joelvoss/retry-lit/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joelvoss/retry-lit.git"
+  },
+  "source": "src/index.js",
+  "main": "dist/retry-lit.js",
+  "module": "dist/retry-lit.m.js",
+  "exports": {
+    "require": "./dist/retry-lit.js",
+    "import": "./dist/retry-lit.modern.js"
+  },
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "./Taskfile.sh test",
+    "prepublishOnly": "./Taskfile.sh build"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@jvdx/core": "^2.4.1"
+  },
+  "prettier": "@jvdx/prettier-config",
+  "prettierIgnore": [
+    "tests/",
+    "dist/"
+  ],
+  "eslintConfig": {
+    "extends": "@jvdx/eslint-config"
+  },
+  "eslintIgnore": [
+    "tests/",
+    "dist/"
+  ]
+}
