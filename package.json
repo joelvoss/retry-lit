@@ -1,7 +1,7 @@
 {
   "name": "retry-lit",
   "description": "Helper method to retry a promise-returning or async function.",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "author": "Joel Voß <mail@joelvoss.com>",
   "license": "MIT",
   "homepage": "https://github.com/joelvoss/retry-lit",
