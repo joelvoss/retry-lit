@@ -12,11 +12,12 @@
     "type": "git",
     "url": "git+https://github.com/joelvoss/retry-lit.git"
   },
+  "type": "module",
   "source": "src/index.js",
-  "main": "dist/retry-lit.js",
-  "module": "dist/retry-lit.m.js",
+  "main": "dist/retry-lit.cjs",
+  "module": "dist/retry-lit.module.js",
   "exports": {
-    "require": "./dist/retry-lit.js",
+    "require": "./dist/retry-lit.cjs",
     "import": "./dist/retry-lit.modern.js"
   },
   "types": "dist/index.d.ts",

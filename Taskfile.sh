@@ -13,7 +13,7 @@ fi
 # START tasks
 
 build() {
-  jvdx build --clean -f modern,cjs,es --no-sourcemap $*
+  jvdx build --clean -f modern,cjs,esm --no-sourcemap $*
 }
 
 format() {
