@@ -31,7 +31,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@jvdx/core": "^2.6.2"
+    "@jvdx/core": "^2.7.1"
   },
   "prettier": "@jvdx/prettier-config",
   "prettierIgnore": [
