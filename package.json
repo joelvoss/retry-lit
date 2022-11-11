@@ -17,6 +17,7 @@
   "main": "dist/retry-lit.cjs",
   "module": "dist/retry-lit.module.js",
   "exports": {
+    "types": "./dist/index.d.ts",
     "require": "./dist/retry-lit.cjs",
     "import": "./dist/retry-lit.modern.js"
   },
@@ -31,7 +32,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@jvdx/core": "^3.0.0"
+    "@jvdx/core": "^3.1.0"
   },
   "prettier": "@jvdx/prettier-config",
   "prettierIgnore": [

@@ -1,7 +1,4 @@
-import { AbortError } from './abort-error';
 import { generateTimeouts } from './generate-timeouts';
-
-////////////////////////////////////////////////////////////////////////////////
 
 const networkErrorMsgs = [
 	'Failed to fetch', // Chrome
@@ -9,6 +6,30 @@ const networkErrorMsgs = [
 	'The Internet connection appears to be offline.', // Safari
 	'Network request failed', // cross-fetch
 ];
+
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * AbortError is a special error instance that can be used to abort the
+ * retry process.
+ * @extends {Error}
+ */
+class AbortError extends Error {
+	constructor(message) {
+		super();
+
+		if (message instanceof Error) {
+			this.originalError = message;
+			({ message } = message);
+		} else {
+			this.originalError = new Error(message);
+			this.originalError.stack = this.stack;
+		}
+
+		this.name = 'AbortError';
+		this.message = message;
+	}
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -49,14 +70,15 @@ function isNetworkError(errorMessage) {
  * @prop {number} [factor=2]
  * @prop {number} [minTimeout=1000]
  * @prop {number} [maxTimeout=Infinity]
- * @prop {(err: Error) => any | Promise<any>} onFailedAttempt
+ * @prop {(err: Error) => void | Promise<void>} onFailedAttempt
  */
 
 /**
- *
- * @param {Function} input
- * @param {RetryOptions} options
- * @returns
+ * retry
+ * @template T
+ * @param {(attemptCount: number) => PromiseLike<T> | T} input
+ * @param {RetryOptions} [options]
+ * @returns {Promise<T>}
  */
 export function retry(input, options) {
 	return new Promise((resolve, reject) => {
