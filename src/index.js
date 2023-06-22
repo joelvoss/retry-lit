@@ -70,7 +70,7 @@ function isNetworkError(errorMessage) {
  * @prop {number} [factor=2]
  * @prop {number} [minTimeout=1000]
  * @prop {number} [maxTimeout=Infinity]
- * @prop {(err: Error) => void | Promise<void>} onFailedAttempt
+ * @prop {(err: Error) => void | Promise<void>} [onFailedAttempt=() => {}]
  */
 
 /**
