@@ -12,6 +12,9 @@
     "type": "git",
     "url": "git+https://github.com/joelvoss/retry-lit.git"
   },
+  "engines": {
+    "node": ">=18"
+  },
   "type": "module",
   "source": "src/index.js",
   "main": "dist/retry-lit.cjs",
@@ -32,7 +35,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@jvdx/core": "^3.5.0"
+    "@jvdx/core": "^3.6.0"
   },
   "prettier": "@jvdx/prettier-config",
   "prettierIgnore": [
