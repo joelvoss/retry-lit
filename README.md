@@ -4,11 +4,6 @@ Helper method to retry a promise-returning or async function.
 It does exponential backoff and supports custom retry strategies for
 failed operations.
 
-## Requirements
-
-- [Node v12+](node+npm)
-- [npm v6+](node+npm)
-
 ## Installation
 
 ```bash
