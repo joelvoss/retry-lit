@@ -1,11 +1,6 @@
 /**
  * generateTimeouts generates timeout numbers in milliseconds for as many
  * retries as given.
- * @param {number} [retries=6]
- * @param {number} [min=10]
- * @param {number} [max=Infinity]
- * @param {number} [factor=6]
- * @returns {Array<number>}
  */
 export function generateTimeouts(
 	retries = 5,

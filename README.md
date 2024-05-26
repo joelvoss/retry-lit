@@ -119,5 +119,3 @@ $ ./Taskfile.sh validate
 help you develop.
 
 ---
-
-_This project was set up by @jvdx/core_

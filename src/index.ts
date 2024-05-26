@@ -12,10 +12,11 @@ const networkErrorMsgs = [
 /**
  * AbortError is a special error instance that can be used to abort the
  * retry process.
- * @extends {Error}
  */
 class AbortError extends Error {
-	constructor(message) {
+	originalError: Error;
+
+	constructor(message: string | Error) {
 		super();
 
 		if (message instanceof Error) {
@@ -34,55 +35,49 @@ class AbortError extends Error {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- * decorateErrorWithCounts decorates an error with the current attemptNumber
- * and retry counts.
- * @param {T} error
- * @param {number} attemptNumber
- * @param {{ retries: number }} options
- * @returns {T}
- * @template {Error} T
+ * AttemptError is a special error instance that is thrown when a retry
+ * attempt fails.
  */
-function decorateErrorWithCounts(error, attemptNumber, options) {
-	// NOTE(joel): The first attempt does not count as retry.
-	const retriesLeft = options.retries - (attemptNumber - 1);
+class AttemptError extends Error {
+	attemptNumber: number = 0;
+	retriesLeft: number = 0;
 
-	error.attemptNumber = attemptNumber;
-	error.retriesLeft = retriesLeft;
-	return error;
+	constructor(message: string) {
+		super();
+		this.name = 'AttemptError';
+		this.message = message;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
  * isNetworkError checks if a given string is a network error.
- * @param {string} errorMessage
- * @returns {Boolean}
  */
-function isNetworkError(errorMessage) {
+function isNetworkError(errorMessage: string) {
 	return networkErrorMsgs.includes(errorMessage);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/**
- * @typedef {Object} RetryOptions
- * @prop {number} [retries=3]
- * @prop {number} [factor=2]
- * @prop {number} [minTimeout=1000]
- * @prop {number} [maxTimeout=Infinity]
- * @prop {(err: Error) => void | Promise<void>} [onFailedAttempt=() => {}]
- */
+type RetryInput<T> = (attemptCount: number) => PromiseLike<T> | T;
+
+type RetryOptions = {
+	retries?: number;
+	factor?: number;
+	minTimeout?: number;
+	maxTimeout?: number;
+	onFailedAttempt?: (err: AttemptError) => void | Promise<void>;
+};
+
+type AttemptFn = (attempts: number) => void;
 
 /**
- * retry
- * @template T
- * @param {(attemptCount: number) => PromiseLike<T> | T} input
- * @param {RetryOptions} [options]
- * @returns {Promise<T>}
+ * retry retries a function that returns a promise, leveraging the `retry`
  */
-export function retry(input, options) {
+export function retry<T>(input: RetryInput<T>, options: RetryOptions = {}) {
 	return new Promise((resolve, reject) => {
-		options = {
+		const opts = {
 			onFailedAttempt: () => {},
 			retries: 3,
 			factor: 2,
@@ -91,34 +86,29 @@ export function retry(input, options) {
 			...options,
 		};
 
-		if (options.minTimeout > options.maxTimeout) {
+		if (opts.minTimeout > opts.maxTimeout) {
 			throw new Error('minTimeout must be less than maxTimeout');
 		}
 
 		let timeouts = generateTimeouts(
-			options.retries,
-			options.minTimeout,
-			options.maxTimeout,
-			options.factor,
+			opts.retries,
+			opts.minTimeout,
+			opts.maxTimeout,
+			opts.factor,
 		);
 
-		/** @type {Array<Error>} */
-		let errors = [];
-		/** @type {number} */
-		let operationStart;
-		/** @type {(attempts: number) => {}} */
-		let fn;
+		let errors: Array<Error> = [];
+		let operationStart: number;
+		let fn: AttemptFn;
 		let attempts = 1;
-		/** @type {NodeJS.Timeout} */
-		let timeoutId;
+		let timeoutId: NodeJS.Timeout;
 		let maxRetryTime = timeouts[timeouts.length - 1];
 
 		/**
 		 * attempt persists the function that will be retrier in a local
 		 * variable so we can call it again if it needs to be retried.
-		 * @param {(attempts: number) => any | Promise<any>} _fn
 		 */
-		function attempt(_fn) {
+		function attempt(_fn: AttemptFn) {
 			fn = _fn;
 			operationStart = new Date().getTime();
 			fn(attempts);
@@ -126,10 +116,8 @@ export function retry(input, options) {
 
 		/**
 		 * retry checks if an error occured and schedules a retry attempt.
-		 * @param {Error} err
-		 * @returns {Boolean}
 		 */
-		function retry(err) {
+		function retry(err: Error) {
 			// NOTE(joel): Abort early, if there was no error.
 			if (!err) return false;
 
@@ -173,15 +161,12 @@ export function retry(input, options) {
 		/**
 		 * mainError parses all errors which lead to a retry attempt and returns
 		 * the last one.
-		 * @returns {Error}
 		 */
 		function mainError() {
 			if (errors.length === 0) return null;
 
-			/** @type {{[key: string]: number}} */
-			let counts = {};
-			/** @type {Error} */
-			let mainError;
+			let counts: Record<string, number> = {};
+			let mainError: Error | null = null;
 			let mainErrorCount = 0;
 
 			for (let i = 0; i < errors.length; i++) {
@@ -220,10 +205,15 @@ export function retry(input, options) {
 					stop();
 					reject(err);
 				} else {
-					decorateErrorWithCounts(err, attemptNumber, options);
+					// NOTE(joel): The first attempt does not count as retry.
+					const retriesLeft = opts.retries - (attemptNumber - 1);
+
+					const attemptErr = new AttemptError(err.message);
+					attemptErr.attemptNumber = attemptNumber;
+					attemptErr.retriesLeft = retriesLeft;
 
 					try {
-						await options.onFailedAttempt(err);
+						await opts.onFailedAttempt(attemptErr);
 					} catch (error) {
 						reject(error);
 						return;

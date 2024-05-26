@@ -1,3 +1,4 @@
+import { describe, test, expect, assert } from 'vitest';
 import { retry } from '../src/index';
 
 const delay = ms => new Promise(r => setTimeout(r, ms));
@@ -6,7 +7,7 @@ describe(`retry`, () => {
 	const fixture = Symbol('fixture');
 	const fixtureError = new Error('fixture');
 
-	it(`should handle retries`, async () => {
+	test(`should handle retries`, async () => {
 		let counter = 0;
 
 		const ret = await retry(async attemptNumber => {
@@ -19,7 +20,7 @@ describe(`retry`, () => {
 		expect(counter).toBe(3);
 	});
 
-	it(`should handle errors`, async () => {
+	test(`should handle errors`, async () => {
 		expect.assertions(2);
 
 		let counter = 0;
@@ -39,7 +40,7 @@ describe(`retry`, () => {
 		expect(counter).toBe(3);
 	});
 
-	it(`should not retry on TypeError`, async () => {
+	test(`should not retry on TypeError`, async () => {
 		expect.assertions(2);
 
 		const typeErrorFixture = new TypeError('type-error-fixture');
@@ -58,7 +59,7 @@ describe(`retry`, () => {
 		expect(counter).toBe(1);
 	});
 
-	it(`should retry on TypeError "Failed to fetch" (Chrome network error)`, async () => {
+	test(`should retry on TypeError "Failed to fetch" (Chrome network error)`, async () => {
 		const typeErrorFixture = new TypeError('Failed to fetch');
 		let counter = 0;
 
@@ -72,8 +73,8 @@ describe(`retry`, () => {
 		expect(counter).toBe(3);
 	});
 
-	it(`should call 'onFailedAttempt' the expected number of times`, async () => {
-		expect.assertions(8);
+	test(`should call 'onFailedAttempt' the expected number of times`, async () => {
+		expect.assertions(10);
 
 		const retries = 5;
 		let counter = 0;
@@ -87,7 +88,8 @@ describe(`retry`, () => {
 			},
 			{
 				onFailedAttempt: err => {
-					expect(err).toBe(fixtureError);
+					expect(err.name).toBe('AttemptError');
+					expect(err.message).toBe(fixtureError.message);
 					expect(err.attemptNumber).toBe(++attempts);
 
 					switch (counter) {
@@ -104,7 +106,7 @@ describe(`retry`, () => {
 							expect(err.retriesLeft).toBe(2);
 							break;
 						default:
-							fail('onFailedAttempt was called more than 4 times');
+							assert.fail('onFailedAttempt was called more than 4 times');
 							break;
 					}
 				},
@@ -116,8 +118,8 @@ describe(`retry`, () => {
 		expect(attempts).toBe(2);
 	});
 
-	it(`should call 'onFailedAttempt' before last rejection`, async () => {
-		expect.assertions(15);
+	test(`should call 'onFailedAttempt' before last rejection`, async () => {
+		expect.assertions(19);
 
 		const retries = 3;
 		let counter = 0;
@@ -132,7 +134,8 @@ describe(`retry`, () => {
 				},
 				{
 					onFailedAttempt: err => {
-						expect(err).toBe(fixtureError);
+						expect(err.name).toBe('AttemptError');
+						expect(err.message).toBe(fixtureError.message);
 						expect(err.attemptNumber).toBe(++attempts);
 
 						switch (counter) {
@@ -149,7 +152,7 @@ describe(`retry`, () => {
 								expect(err.retriesLeft).toBe(0);
 								break;
 							default:
-								fail('onFailedAttempt was called more than 4 times');
+								assert.fail('onFailedAttempt was called more than 4 times');
 								break;
 						}
 					},
@@ -164,7 +167,7 @@ describe(`retry`, () => {
 		expect(attempts).toBe(4);
 	}, 10000);
 
-	it(`should allow 'onFailedAttempt' to return a Promise to add delay`, async () => {
+	test(`should allow 'onFailedAttempt' to return a Promise to add delay`, async () => {
 		const waitFor = 1000;
 		const start = Date.now();
 		let isCalled;
@@ -189,7 +192,7 @@ describe(`retry`, () => {
 		expect(Date.now() > start + waitFor).toBe(true);
 	});
 
-	it(`should allow 'onFailedAttempt' to throw, causing all retries to be aborted`, async () => {
+	test(`should allow 'onFailedAttempt' to throw, causing all retries to be aborted`, async () => {
 		expect.assertions(1);
 		const error = new Error('thrown from onFailedAttempt');
 
@@ -209,13 +212,15 @@ describe(`retry`, () => {
 		}
 	});
 
-	it(`should throw a useful error message`, async () => {
+	test(`should throw a useful error message`, async () => {
 		try {
 			await retry(() => {
 				throw 'unuseful';
 			});
 		} catch (err) {
-			expect(err.message).toBe('Non-error was thrown: "unuseful". You should only throw errors.')
+			expect(err.message).toBe(
+				'Non-error was thrown: "unuseful". You should only throw errors.',
+			);
 		}
 	});
 });
