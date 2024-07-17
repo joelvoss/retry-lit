@@ -75,7 +75,10 @@ type AttemptFn = (attempts: number) => void;
 /**
  * retry retries a function that returns a promise, leveraging the `retry`
  */
-export function retry<T>(input: RetryInput<T>, options: RetryOptions = {}) {
+export function retry<T>(
+	input: RetryInput<T>,
+	options: RetryOptions = {},
+): Promise<T> {
 	return new Promise((resolve, reject) => {
 		const opts = {
 			onFailedAttempt: () => {},
