@@ -32,7 +32,7 @@
   },
   "scripts": {
     "test": "./Taskfile.sh test",
-    "build": "./Taskfile.sh build"
+    "prepublishOnly": "./Taskfile.sh build"
   },
   "devDependencies": {
     "@jvdx/eslint-config": "^4.3.0",
