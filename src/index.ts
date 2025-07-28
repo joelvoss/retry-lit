@@ -113,7 +113,7 @@ export function retry<T>(
 		 */
 		function attempt(_fn: AttemptFn) {
 			fn = _fn;
-			operationStart = new Date().getTime();
+			operationStart = Date.now();
 			fn(attempts);
 		}
 
@@ -124,7 +124,7 @@ export function retry<T>(
 			// NOTE(joel): Abort early, if there was no error.
 			if (!err) return false;
 
-			let currentTime = new Date().getTime();
+			let currentTime = Date.now();
 
 			if (err && currentTime - operationStart >= maxRetryTime) {
 				errors.push(err);

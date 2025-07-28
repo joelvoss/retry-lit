@@ -1,4 +1,4 @@
-import { describe, test, expect, assert } from 'vitest';
+import { assert, describe, expect, test } from 'vitest';
 import { retry } from '../src/index';
 
 const delay = ms => new Promise(r => setTimeout(r, ms));
@@ -170,7 +170,7 @@ describe(`retry`, () => {
 	test(`should allow 'onFailedAttempt' to return a Promise to add delay`, async () => {
 		const waitFor = 1000;
 		const start = Date.now();
-		let isCalled;
+		let isCalled: boolean;
 
 		await retry(
 			async () => {

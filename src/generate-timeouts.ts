@@ -10,10 +10,7 @@ export function generateTimeouts(
 ) {
 	let timeouts = [];
 	for (let i = 0; i < retries; i++) {
-		let timeout = Math.min(
-			Math.round(Math.max(min, 1) * Math.pow(factor, i)),
-			max,
-		);
+		let timeout = Math.min(Math.round(Math.max(min, 1) * factor ** i), max);
 		timeouts.push(timeout);
 	}
 	return timeouts;
