@@ -1,7 +1,8 @@
 import { assert, describe, expect, test } from 'vitest';
+
 import { retry } from '../src/index';
 
-const delay = ms => new Promise(r => setTimeout(r, ms));
+const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 
 describe(`retry`, () => {
 	const fixture = Symbol('fixture');
@@ -10,7 +11,7 @@ describe(`retry`, () => {
 	test(`should handle retries`, async () => {
 		let counter = 0;
 
-		const ret = await retry(async attemptNumber => {
+		const ret = await retry(async (attemptNumber) => {
 			await delay(40);
 			counter++;
 			return attemptNumber === 3 ? fixture : Promise.reject(fixtureError);
@@ -26,7 +27,7 @@ describe(`retry`, () => {
 		let counter = 0;
 
 		try {
-			await retry(async attemptNumber => {
+			await retry(async (attemptNumber) => {
 				await delay(40);
 				counter++;
 				return attemptNumber === 3
@@ -47,7 +48,7 @@ describe(`retry`, () => {
 		let counter = 0;
 
 		try {
-			await retry(async attemptNumber => {
+			await retry(async (attemptNumber) => {
 				await delay(40);
 				counter++;
 				return attemptNumber === 3 ? fixture : Promise.reject(typeErrorFixture);
@@ -63,7 +64,7 @@ describe(`retry`, () => {
 		const typeErrorFixture = new TypeError('Failed to fetch');
 		let counter = 0;
 
-		const ret = await retry(async attemptNumber => {
+		const ret = await retry(async (attemptNumber) => {
 			await delay(40);
 			counter++;
 			return attemptNumber === 3 ? fixture : Promise.reject(typeErrorFixture);
@@ -81,13 +82,13 @@ describe(`retry`, () => {
 		let attempts = 0;
 
 		await retry(
-			async attemptNumber => {
+			async (attemptNumber) => {
 				await delay(40);
 				counter++;
 				return attemptNumber === 3 ? fixture : Promise.reject(fixtureError);
 			},
 			{
-				onFailedAttempt: err => {
+				onFailedAttempt: (err) => {
 					expect(err.name).toBe('AttemptError');
 					expect(err.message).toBe(fixtureError.message);
 					expect(err.attemptNumber).toBe(++attempts);
@@ -133,7 +134,7 @@ describe(`retry`, () => {
 					return Promise.reject(fixtureError);
 				},
 				{
-					onFailedAttempt: err => {
+					onFailedAttempt: (err) => {
 						expect(err.name).toBe('AttemptError');
 						expect(err.message).toBe(fixtureError.message);
 						expect(err.attemptNumber).toBe(++attempts);

@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+
 import { generateTimeouts } from '../src/generate-timeouts';
 
 describe(`generate-timeouts`, () => {

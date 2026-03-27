@@ -100,12 +100,12 @@ export function retry<T>(
 			opts.factor,
 		);
 
-		let errors: Array<Error> = [];
+		const errors: Array<Error> = [];
 		let operationStart: number;
 		let fn: AttemptFn;
 		let attempts = 1;
-		let timeoutId: NodeJS.Timeout;
-		let maxRetryTime = timeouts[timeouts.length - 1];
+		let timeoutId: ReturnType<typeof setTimeout>;
+		const maxRetryTime = timeouts[timeouts.length - 1];
 
 		/**
 		 * attempt persists the function that will be retrier in a local
@@ -124,7 +124,7 @@ export function retry<T>(
 			// NOTE(joel): Abort early, if there was no error.
 			if (!err) return false;
 
-			let currentTime = Date.now();
+			const currentTime = Date.now();
 
 			if (err && currentTime - operationStart >= maxRetryTime) {
 				errors.push(err);
@@ -134,7 +134,7 @@ export function retry<T>(
 
 			errors.push(err);
 
-			let timeout = timeouts.shift();
+			const timeout = timeouts.shift();
 			if (timeout === undefined) return false;
 
 			timeoutId = setTimeout(() => {
@@ -145,8 +145,8 @@ export function retry<T>(
 			// Allow the node process to exit before the timer ends. This is only
 			// relevant server side.
 			// @see https://nodejs.org/api/timers.html#timers_immediate_unref
-			if (typeof timeoutId.unref === 'function') {
-				timeoutId.unref();
+			if (typeof (timeoutId as any).unref === 'function') {
+				(timeoutId as any).unref();
 			}
 
 			return true;
@@ -168,14 +168,14 @@ export function retry<T>(
 		function mainError() {
 			if (errors.length === 0) return null;
 
-			let counts: Record<string, number> = {};
+			const counts: Record<string, number> = {};
 			let mainError: Error | null = null;
 			let mainErrorCount = 0;
 
 			for (let i = 0; i < errors.length; i++) {
-				let error = errors[i];
-				let message = error.message;
-				let count = (counts[message] || 0) + 1;
+				const error = errors[i];
+				const message = error.message;
+				const count = (counts[message] || 0) + 1;
 
 				counts[message] = count;
 
@@ -188,7 +188,7 @@ export function retry<T>(
 			return mainError;
 		}
 
-		attempt(async attemptNumber => {
+		attempt(async (attemptNumber) => {
 			try {
 				resolve(await input(attemptNumber));
 			} catch (err) {
