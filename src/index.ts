@@ -104,7 +104,7 @@ export function retry<T>(
 		let operationStart: number;
 		let fn: AttemptFn;
 		let attempts = 1;
-		let timeoutId: ReturnType<typeof setTimeout>;
+		let timeoutId: ReturnType<typeof setTimeout> | null = null;
 		const maxRetryTime = timeouts[timeouts.length - 1];
 
 		/**
@@ -145,9 +145,7 @@ export function retry<T>(
 			// Allow the node process to exit before the timer ends. This is only
 			// relevant server side.
 			// @see https://nodejs.org/api/timers.html#timers_immediate_unref
-			if (typeof (timeoutId as any).unref === 'function') {
-				(timeoutId as any).unref();
-			}
+			(timeoutId as { unref?: () => void }).unref?.();
 
 			return true;
 		}
