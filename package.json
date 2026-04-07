@@ -35,13 +35,13 @@
     "prepublishOnly": "./Taskfile.sh build"
   },
   "devDependencies": {
-    "@types/node": "25.5.0",
-    "jsdom": "29.0.1",
-    "oxfmt": "0.42.0",
-    "oxlint": "1.57.0",
+    "@types/node": "25.5.2",
+    "jsdom": "29.0.2",
+    "oxfmt": "0.44.0",
+    "oxlint": "1.59.0",
     "typescript": "6.0.2",
-    "vite": "8.0.3",
-    "vite-plugin-bundle-dts": "0.2.0",
-    "vitest": "4.1.2"
+    "vite": "8.0.6",
+    "vite-plugin-bundle-dts": "0.3.0",
+    "vitest": "4.1.3"
   }
 }
